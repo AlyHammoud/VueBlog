@@ -1,17 +1,19 @@
 <template>
   <div class="app-wrapper">
     <div class="app">
-      <Navigation />
+      <Navigation v-if="!state.navigation" />
       <router-view></router-view>
-      <Footer />
+      <Footer v-if="!state.navigation" />
     </div>
   </div>
 </template>
 
-
 <script>
 import Navigation from "./components/Navigation.vue";
 import Footer from "./components/Footer.vue";
+import { reactive } from "@vue/reactivity";
+import { useRoute } from "vue-router";
+import { onMounted, watch, watchEffect } from "@vue/runtime-core";
 
 export default {
   //  name: App,
@@ -21,10 +23,37 @@ export default {
     Footer,
   },
 
-  setup() {},
+  setup() {
+    const state = reactive({
+      navigation: null,
+    });
+
+    const route = useRoute();
+
+    const checkRoute = () => {
+      if (
+        route.name === "Login" ||
+        route.name === "Register" ||
+        route.name === "ForgotPassword"
+      ) {
+        state.navigation = true;
+        return;
+      }
+      state.navigation = false;
+    };
+
+    onMounted(() => {
+      return checkRoute();
+    });
+
+    watchEffect(() => {
+      return checkRoute();
+    });
+
+    return { state };
+  },
 };
 </script>
-
 
 <style lang="scss">
 @import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap");
@@ -82,7 +111,7 @@ export default {
   }
 }
 
-.button-ghost{
+.button-ghost {
   color: #000;
   padding: 0;
   border-radius: 0;
@@ -93,21 +122,21 @@ export default {
 
   @media (min-width: 700px) {
     margin-top: 0;
-    margin-left: auto;    
+    margin-left: auto;
   }
 
-  i{
+  i {
     margin-left: 8px;
   }
 }
 
-.button-light{
+.button-light {
   background-color: transparent;
   border: 2px solid #fff;
   color: #fff;
 }
 
-.button-inactive{
+.button-inactive {
   pointer-events: none !important;
   cursor: none !important;
   background-color: rgba(128, 128, 128, 0.5) !important;
