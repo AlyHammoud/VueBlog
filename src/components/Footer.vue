@@ -38,7 +38,7 @@
         <div class="col-2">
           <ul>
             <router-link class="link" :to="{ name: 'Home' }">Home</router-link>
-            <router-link class="link" :to="{ name: 'Home' }"
+            <router-link class="link" :to="{ name: 'Blogs' }"
               >Blogs</router-link
             >
             <router-link v-if="true" class="link" :to="{ name: 'Home' }"
