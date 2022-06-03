@@ -44,7 +44,7 @@
             <router-link v-if="true" class="link" :to="{ name: 'Home' }"
               >Create Post</router-link
             >
-            <router-link v-if="true" class="link" :to="{ name: 'Home' }"
+            <router-link v-if="true" class="link" :to="{ name: 'Login' }"
               >Login In / Register</router-link
             >
           </ul>

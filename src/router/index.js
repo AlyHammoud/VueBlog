@@ -54,7 +54,7 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _, next) => {
   document.title = `${to.meta.title} | FireBlog`;
   next();
 });

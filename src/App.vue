@@ -12,8 +12,8 @@
 import Navigation from "./components/Navigation.vue";
 import Footer from "./components/Footer.vue";
 import { reactive } from "@vue/reactivity";
-import { useRoute } from "vue-router";
-import { onMounted, watch, watchEffect } from "@vue/runtime-core";
+import { useRoute, useRouter } from "vue-router";
+import { onMounted, watchEffect } from "@vue/runtime-core";
 
 export default {
   //  name: App,
@@ -140,6 +140,12 @@ export default {
   pointer-events: none !important;
   cursor: none !important;
   background-color: rgba(128, 128, 128, 0.5) !important;
+}
+
+.error{
+  text-align: center;
+  font-size: 12px;
+  color: red;
 }
 
 .arrow {
