@@ -101,7 +101,7 @@ export default {
           state.password
         );
 
-        const dataBase = doc(collection(db, "users"), createUser.user.uid);
+        const dataBase = doc(collection(db, "users"), createUser.user.uid); //prepare the document with collection in ( db ) of name of the collection users, and a userid of the registerd user, or can be emtpy then setDoc generates a random id
         await setDoc(dataBase, {
           firstName: state.firstName,
           lastName: state.lastName,
