@@ -27,6 +27,9 @@
       >
 
       <button class="button" @click.prevent="login">Sign In</button>
+      <router-link class="router-link" :to="{ name: 'Home' }"
+        >Back to home</router-link
+      >
       <div class="angle"></div>
     </form>
 
@@ -202,6 +205,11 @@ export default {
       @media (min-width: 900px) {
         display: initial;
       }
+    }
+
+    .router-link {
+      margin-top: 10px;
+      color: #000;
     }
   }
 

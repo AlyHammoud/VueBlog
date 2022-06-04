@@ -1,6 +1,10 @@
 <template>
   <div class="reset-password">
-    <Modal v-if="state.modalActive" @close-modal="closeModal" />
+    <Modal
+      v-if="state.modalActive"
+      :modalMessage="state.modalMessage"
+      @close-modal="closeModal"
+    />
     <Loading v-if="state.loading" />
     <div class="form-wrap">
       <form class="reset">
@@ -12,10 +16,13 @@
             <email class="icon" />
           </div>
         </div>
-        <button class="button">Reset</button>
+        <button class="button" @click.prevent="resetPassword">Reset</button>
+        <router-link class="router-link" :to="{ name: 'Login' }"
+          >Back to login</router-link
+        >
         <div class="angle"></div>
       </form>
-      <div class="backgrou"></div>
+      <div class="background"></div>
     </div>
   </div>
 </template>
@@ -25,6 +32,9 @@ import { reactive } from "@vue/reactivity";
 import email from "../assets/icons/envelope-regular.svg";
 import Modal from "../components/Modal.vue";
 import Loading from "../components/Loading.vue";
+
+import { auth, db } from "../firebase/firebaseInit";
+import { sendPasswordResetEmail } from "@firebase/auth";
 
 export default {
   name: "ForgotPassword",
@@ -39,7 +49,7 @@ export default {
       email: null,
       modalActive: false,
       modalMessage: "",
-      loading: null
+      loading: null,
     });
 
     const closeModal = () => {
@@ -47,7 +57,22 @@ export default {
       state.email = "";
     };
 
-    return { state, closeModal };
+    const resetPassword = () => {
+      state.loading = true;
+      sendPasswordResetEmail(auth, state.email).then(() => {
+        state.modalMessage =
+          "If your account exists, you will receive a reset email";
+          state.loading = false;
+          state.modalActive = true;
+      }).catch((err) => {
+        state.modalMessage = err.message;
+        state.loading = false;
+        state.modalActive = true;
+        state.email = "";
+      });
+    };
+
+    return { state, closeModal, resetPassword };
   },
 };
 </script>
@@ -64,6 +89,16 @@ export default {
       p {
         text-align: center;
         margin-bottom: 32px;
+      }
+
+      .router-link {
+        margin-top: 10px;
+        color: #000;
+        transition: all 1s ease;
+
+        &:hover {
+          color: #7e7979;
+        }
       }
     }
   }

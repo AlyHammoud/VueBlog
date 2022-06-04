@@ -17,6 +17,7 @@ import { onMounted, watchEffect } from "@vue/runtime-core";
 
 import { db, auth } from "./firebase/firebaseInit";
 import { onAuthStateChanged } from "firebase/auth";
+import { useStore } from 'vuex';
 
 export default {
   //  name: App,
@@ -32,6 +33,7 @@ export default {
     });
 
     const route = useRoute();
+    const store = useStore();
 
     const checkRoute = () => {
       if (
@@ -47,8 +49,12 @@ export default {
 
     onMounted(() => {
       onAuthStateChanged(auth, (user) => {
+        store.commit("updateUser", user);
         if(user){ //user.uid  or auth.currentUser.uid
-          console.log(user.uid);
+          store.dispatch("getCurrentUser")
+            .then(() => {
+              console.log(store.state.profileEmail);
+            });
         }
       });
 
