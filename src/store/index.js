@@ -1,6 +1,7 @@
 import { createStore } from "vuex";
 import { auth, db } from "../firebase/firebaseInit";
 import { getDoc, collection, doc } from "firebase/firestore";
+import { setTimeout } from "core-js";
 
 const store = createStore({
   state: {
@@ -42,12 +43,12 @@ const store = createStore({
       state.editPost = payload;
     },
 
-    updateUser(state, payload){
+    updateUser(state, payload) {
       state.user = payload;
     },
 
     //fired in actions
-    setProfileInfo(state, doc) {
+    async setProfileInfo(state, doc) {
       state.profileId = doc.id;
       state.profileEmail = doc.data().email;
       state.profileFirstName = doc.data().firstName;
@@ -55,16 +56,16 @@ const store = createStore({
       state.profileUserName = doc.data().userName;
     },
 
-    setProfileInitials(state){
+    async setProfileInitials(state) {
       state.profileInitials =
         state.profileFirstName.match(/(\b\S)?/g).join("") +
         state.profileLastName.match(/(\b\S)?/g).join("");
-    }
+    },
   },
 
   /*Actions*/
   actions: {
-    async getCurrentUser({ commit }) {
+    async getCurrentUser({ state, commit }) {
       const docRef = doc(collection(db, "users"), auth.currentUser.uid);
       const docSnap = await getDoc(docRef);
 

@@ -13,7 +13,7 @@ import Navigation from "./components/Navigation.vue";
 import Footer from "./components/Footer.vue";
 import { reactive } from "@vue/reactivity";
 import { useRoute, useRouter } from "vue-router";
-import { onMounted, watchEffect } from "@vue/runtime-core";
+import { onBeforeMount, onMounted, watchEffect } from "@vue/runtime-core";
 
 import { db, auth } from "./firebase/firebaseInit";
 import { onAuthStateChanged } from "firebase/auth";
@@ -48,13 +48,12 @@ export default {
     };
 
     onMounted(() => {
+
       onAuthStateChanged(auth, (user) => {
         store.commit("updateUser", user);
+        
         if(user){ //user.uid  or auth.currentUser.uid
-          store.dispatch("getCurrentUser")
-            .then(() => {
-              console.log(store.state.profileEmail);
-            });
+          store.dispatch("getCurrentUser");
         }
       });
 

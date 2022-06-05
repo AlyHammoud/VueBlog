@@ -44,7 +44,7 @@
             <router-link v-if="true" class="link" :to="{ name: 'Home' }"
               >Create Post</router-link
             >
-            <router-link v-if="true" class="link" :to="{ name: 'Login' }"
+            <router-link v-if="user" class="link" :to="{ name: 'Login' }"
               >Login In / Register</router-link
             >
           </ul>
@@ -62,6 +62,9 @@ import youTube from "../assets/Icons/youtube-brands.svg";
 import twitter from "../assets/Icons/twitter-brands.svg";
 import instagram from "../assets/Icons/instagram-brands.svg";
 import linkedin from "../assets/Icons/linkedin-brands.svg";
+import { useStore } from "vuex";
+import { computed } from '@vue/runtime-core';
+
 export default {
   components: {
     youTube,
@@ -69,14 +72,24 @@ export default {
     instagram,
     linkedin,
   },
-//   computed: {
-//     user() {
-//       return this.$store.state.user;
-//     },
-//     admin() {
-//       return this.$store.state.profileAdmin;
-//     },
-//   },
+
+  setup() {
+    const store = useStore();
+    const user = computed(() => {
+      return store.state.user;
+    });
+
+    return { user };
+  },
+  
+  //   computed: {
+  //     user() {
+  //       return this.$store.state.user;
+  //     },
+  //     admin() {
+  //       return this.$store.state.profileAdmin;
+  //     },
+  //   },
 };
 </script>
 
