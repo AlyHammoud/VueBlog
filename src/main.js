@@ -2,10 +2,9 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import store from "./store/index";
 import router from "./router/index";
-import Vue2Editor from "vue2-editor";
+//import Vue2Editor from "vue2-editor";
 import { onAuthStateChanged } from "firebase/auth";
 import { auth } from "./firebase/firebaseInit";
-
 
 let app;
 

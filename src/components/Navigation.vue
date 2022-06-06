@@ -10,7 +10,7 @@
         <ul v-show="state.mobile">
           <router-link class="link" :to="{ name: 'Home' }">Home</router-link>
           <router-link class="link" :to="{ name: 'Blogs' }">Blogs</router-link>
-          <router-link class="link" :to="{ name: 'Home' }"
+          <router-link class="link" :to="{ name: 'CreatePost' }"
             >Create Post</router-link
           >
           <router-link v-if="!user" class="link" :to="{ name: 'Login' }"
@@ -19,7 +19,12 @@
         </ul>
 
         <!-- profile Menu -->
-        <div v-if="user" @click="toggleProfileMenu" class="profile" ref="profile">
+        <div
+          v-if="user"
+          @click="toggleProfileMenu"
+          class="profile"
+          ref="profile"
+        >
           <span>{{ this.$store.state.profileInitials }}</span>
           <div v-show="state.profileMenu" class="profile-menu">
             <div class="info">
@@ -37,12 +42,12 @@
             </div>
 
             <div class="options">
-              <router-link class="option" to="#">
+              <router-link class="option" :to="{ name: 'Profile' }">
                 <userIcon class="icon" />
                 <p>Profile</p>
               </router-link>
 
-              <router-link class="option" to="#">
+              <router-link class="option" :to="{ name: 'Admin' }">
                 <adminIcon class="icon" />
                 <p>Admin</p>
               </router-link>
@@ -51,7 +56,6 @@
                 <signOutIcon class="icon" />
                 <p>Sign Out</p>
               </div>
-
             </div>
           </div>
         </div>
@@ -67,7 +71,7 @@
       <ul class="mobile-nav" v-show="state.mobileNav">
         <router-link class="link" :to="{ name: 'Home' }">Home</router-link>
         <router-link class="link" :to="{ name: 'Blogs' }">Blogs</router-link>
-        <router-link class="link" to="#">Create Post</router-link>
+        <router-link class="link" :to="{ name: 'CreatePost' }">Create Post</router-link>
         <router-link class="link" :to="{ name: 'Login' }" v-if="!user"
           >Login/register</router-link
         >
@@ -86,8 +90,8 @@ import signOutIcon from "../assets/Icons/sign-out-alt-regular.svg";
 import { computed, onMounted } from "@vue/runtime-core";
 import { useStore } from "vuex";
 
-import { onAuthStateChanged, signOut } from '@firebase/auth';
-import { auth, db } from '../firebase/firebaseInit';
+import { onAuthStateChanged, signOut } from "@firebase/auth";
+import { auth, db } from "../firebase/firebaseInit";
 
 export default {
   //   name: navigation,
@@ -102,7 +106,7 @@ export default {
   setup() {
     const store = useStore();
 
-    const profile = ref('profile');
+    const profile = ref(null);
 
     const state = reactive({
       mobile: null,
@@ -125,7 +129,7 @@ export default {
     const user = computed(() => {
       return store.state.user;
     });
-    
+
     onMounted(() => {
       window.addEventListener("resize", checkScreen);
       checkScreen();
@@ -144,7 +148,7 @@ export default {
     const toggleMobileNav = () => (state.mobileNav = !state.mobileNav);
 
     const toggleProfileMenu = (e) => {
-      if(e.target.getAttribute('class') === profile.value){
+      if (e.target === profile.value) {
         state.profileMenu = !state.profileMenu;
       }
     };
@@ -153,9 +157,16 @@ export default {
       signOut(auth).then(() => {
         window.location.reload();
       });
-    }
+    };
 
-    return { state, toggleMobileNav, toggleProfileMenu, signOutMe, user };
+    return {
+      state,
+      toggleMobileNav,
+      toggleProfileMenu,
+      signOutMe,
+      user,
+      profile,
+    };
   },
 };
 </script>
@@ -225,9 +236,12 @@ header {
         color: #fff;
         background-color: #303030;
 
-        > span{
+        > span {
           pointer-events: none;
         }
+        @media(max-width: 750px) {
+            margin-right: 40px;
+          }
 
         .profile-menu {
           position: absolute;
@@ -279,7 +293,7 @@ header {
               align-items: center;
               margin-bottom: 12px;
 
-              &:hover{
+              &:hover {
                 color: rgb(119, 100, 100);
                 transition: all 1s ease;
               }

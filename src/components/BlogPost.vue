@@ -1,8 +1,7 @@
 <template>
-  <div class="blog-wrapper no-user">
+  <div class="blog-wrapper" :class="{'no-user': !user}">
     <div class="blog-content">
       <div>
-
         <h2 v-if="props.post.welcomeScreen">{{ props.post.title }}</h2>
         <h2 v-else>{{ props.post.title }}</h2>
 
@@ -12,33 +11,34 @@
         <router-link
           class="link link-light"
           v-if="props.post.welcomeScreen"
-          to="#"
+          :to="{ name: 'Login' }"
         >
           Login/Register<Arrow class="arrow link-light" />
         </router-link>
 
-        <router-link class="link" v-else to="#">
+        <router-link class="link" v-else :to="{ name: 'Blogs' }">
           View the post<Arrow class="arrow" />
         </router-link>
-
       </div>
     </div>
-    
-    <div class="blog-photo">
-        <img
-          v-if="state.welcomeScreenPhoto"
-          :src="getImgUrl(state.welcomeScreenPhoto, 'jpg')"
-          alt=""
-        />
 
-        <img v-else :src="getImgUrl(state.blogCoverPhoto, 'jpg')" alt="" />
-      </div>
+    <div class="blog-photo">
+      <img
+        v-if="state.welcomeScreenPhoto"
+        :src="getImgUrl(state.welcomeScreenPhoto, 'jpg')"
+        alt=""
+      />
+
+      <img v-else :src="getImgUrl(state.blogCoverPhoto, 'jpg')" alt="" />
+    </div>
   </div>
 </template>
 
 <script>
-import { reactive } from '@vue/reactivity';
+import { reactive } from "@vue/reactivity";
 import Arrow from "../assets/Icons/arrow-right-light.svg";
+import { useStore } from 'vuex';
+import { computed } from '@vue/runtime-core';
 export default {
   name: "blogPost",
   components: { Arrow },
@@ -47,31 +47,38 @@ export default {
 
   setup(props) {
     const state = reactive({
-        welcomeScreenPhoto: props.post.photo,
-        blogCoverPhoto: props.post.blogCoverPhoto
+      welcomeScreenPhoto: props.post.photo,
+      blogCoverPhoto: props.post.blogCoverPhoto,
+    });
+
+    const store = useStore();
+
+    const user = computed(() => {
+      return store.state.user;
     });
 
     const getImgUrl = (pic, ext) => {
       return `src/assets/blogPhotos/${pic}.${ext}`;
     };
-    return { props, state, getImgUrl };
+    return { props, state, getImgUrl, user };
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.blog-wrapper{
+.blog-wrapper {
   display: flex;
   flex-direction: column;
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-  
-  @media (min-width: 700px){
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+  @media (min-width: 700px) {
     min-height: 650px;
     max-height: 650px;
     flex-direction: row;
   }
-    
-    .blog-content{
+
+  .blog-content {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -79,39 +86,39 @@ export default {
     flex: 4;
     order: 2;
 
-    @media (min-width: 700px){
+    @media (min-width: 700px) {
       order: 1;
     }
 
-    @media (min-width: 800px){
+    @media (min-width: 800px) {
       flex: 3;
     }
 
-    div{
+    div {
       max-width: 375px;
       padding: 72px 24px;
 
-      @media(min-width: 700){
+      @media (min-width: 700) {
         padding: 0 24px;
       }
 
-      h2{
+      h2 {
         font-size: 32px;
         font-weight: 300;
         text-transform: uppercase;
         margin-bottom: 24px;
 
-        @media(min-width: 700px){
+        @media (min-width: 700px) {
           font-size: 40px;
         }
 
-        p{
+        p {
           font-size: 35px;
           font-weight: 300;
-          line-height: 1,7;
+          line-height: 1, 7;
         }
 
-        .content-preview{
+        .content-preview {
           font-size: 13px;
           max-height: 24px;
           width: 250px;
@@ -121,7 +128,7 @@ export default {
         }
       }
 
-      .link{
+      .link {
         display: inline-flex;
         align-items: center;
         margin-top: 32px;
@@ -129,55 +136,58 @@ export default {
         border-bottom: 1px solid transparent;
         transition: 0.5s all ease-in;
 
-        &:hover{
+        &:hover {
           border-bottom-color: #303030;
         }
       }
 
-      .link-light{
-        &:hover{
+      .link-light {
+        &:hover {
           border-bottom-color: #fff;
         }
       }
     }
   }
 
-  .blog-photo{
+  .blog-photo {
     order: 1;
     flex: 3;
-    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
 
-    @media(min-width: 700px){
+    @media (min-width: 700px) {
       order: 2;
     }
-    
-    @media(min-width: 800px){
+
+    @media (min-width: 800px) {
       flex: 4;
     }
-    img{
+    img {
       display: block;
       width: 100%;
       height: 100%;
       object-fit: cover;
-
     }
   }
 
-  &:nth-child(even){
-    .blog-content{
+  &:nth-child(even) {
+    .blog-content {
       order: 2;
     }
 
-    .blog-photo{
+    .blog-photo {
       order: 1;
     }
   }
 }
 
-.no-user:first-child{
-    .blog-content{
-      background-color: #303030;
-      color: #fff;
-    }
+.no-user:first-child {
+  .blog-content {
+    background-color: #303030;
+    color: #fff;
   }
+  &:first-child  .arrow {
+    color: white;
+  }
+}
 </style>

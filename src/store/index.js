@@ -1,7 +1,6 @@
 import { createStore } from "vuex";
 import { auth, db } from "../firebase/firebaseInit";
-import { getDoc, collection, doc } from "firebase/firestore";
-import { setTimeout } from "core-js";
+import { getDoc, collection, doc, updateDoc } from "firebase/firestore";
 
 const store = createStore({
   state: {
@@ -27,6 +26,13 @@ const store = createStore({
         blogDate: "May 1, 2022",
       },
     ],
+
+    blogHtml: "Write your blog title here...",
+    blogTitle: "",
+    blogPhotoName: "",
+    blogPhotoFileURL: null,
+    blogPhotoPreview: null,
+
     editPost: null,
     user: null,
     profileEmail: null,
@@ -39,6 +45,25 @@ const store = createStore({
 
   /*Mutations*/
   mutations: {
+    newBlogPost(state, payload) {
+      state.blogHtml = payload;
+    },
+
+    updateBlogTitle(state, payload) {
+      state.blogTitle = payload;
+    },
+
+    fileNameChange(state, payload) {
+      state.blogPhotoName = payload;
+    },
+    createFileURL(state, payload) {
+      state.blogPhotoFileURL = payload;
+    },
+
+    openPhotoPreview(state){
+      state.blogPhotoPreview = !state.blogPhotoPreview;
+    },
+
     toggleEditPost(state, payload) {
       state.editPost = payload;
     },
@@ -61,6 +86,21 @@ const store = createStore({
         state.profileFirstName.match(/(\b\S)?/g).join("") +
         state.profileLastName.match(/(\b\S)?/g).join("");
     },
+
+    //change firstName
+    changeFirstName(state, payload) {
+      state.profileFirstName = payload;
+    },
+
+    //change lastName
+    changeLastName(state, payload) {
+      state.profileLastName = payload;
+    },
+
+    //change userName
+    changeUserName(state, payload) {
+      state.profileUserName = payload;
+    },
   },
 
   /*Actions*/
@@ -70,6 +110,18 @@ const store = createStore({
       const docSnap = await getDoc(docRef);
 
       commit("setProfileInfo", docSnap);
+      commit("setProfileInitials");
+    },
+
+    async updateUserSettings({ commit, state }) {
+      const docRef = doc(collection(db, "users"), state.profileId);
+
+      await updateDoc(docRef, {
+        firstName: state.profileFirstName,
+        lastName: state.profileLastName,
+        usertName: state.profileUserName,
+      });
+
       commit("setProfileInitials");
     },
   },

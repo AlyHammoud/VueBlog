@@ -5,6 +5,10 @@ import Blogs from "../views/Blogs.vue";
 import Login from "../views/Login.vue";
 import Register from "../views/Register.vue";
 import ForgotPassword from "../views/ForgotPassword.vue";
+import Admin from "../views/Admin.vue";
+import Profile from "../views/Profile.vue";
+import CreatePost from "../views/CreatePost.vue";
+import store from "../store/index";
 
 const routes = [
   {
@@ -13,6 +17,7 @@ const routes = [
     component: Home,
     meta: {
       title: "Home",
+      middleware: ['auth']
     },
   },
   {
@@ -21,6 +26,7 @@ const routes = [
     component: Blogs,
     meta: {
       title: "Blogs",
+      middleware: ['auth']
     },
   },
   {
@@ -29,6 +35,7 @@ const routes = [
     component: Login,
     meta: {
       title: "Login",
+      middleware: ['guest']
     },
   },
   {
@@ -37,6 +44,7 @@ const routes = [
     component: Register,
     meta: {
       title: "Register",
+      middleware: ['guest']
     },
   },
   {
@@ -45,6 +53,34 @@ const routes = [
     component: ForgotPassword,
     meta: {
       title: "Forgot Password",
+      middleware: ['guest']
+    },
+  },
+  {
+    path: "/profile",
+    name: "Profile",
+    component: Profile,
+    meta: {
+      title: "Profile",
+      middleware: ['auth']
+    },
+  },
+  {
+    path: "/admin",
+    name: "Admin",
+    component: Admin,
+    meta: {
+      title: "Admin",
+      middleware: ['auth']
+    },
+  },
+  {
+    path: "/createPost",
+    name: "CreatePost",
+    component: CreatePost,
+    meta: {
+      title: "Create Post",
+      middleware: ['auth']
     },
   },
 ];
@@ -56,7 +92,12 @@ const router = createRouter({
 
 router.beforeEach((to, _, next) => {
   document.title = `${to.meta.title} | FireBlog`;
-  next();
+
+  if (store.state.user !== null && to.meta.middleware.includes('guest')) {
+    next("/");
+  } else {
+    next();
+  }
 });
 
 export default router;
