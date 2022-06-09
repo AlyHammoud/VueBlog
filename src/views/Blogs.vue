@@ -1,52 +1,53 @@
 <template>
   <div class="blog-card-wrap">
     <div class="blog-cards container">
-      <div class="toggle-edit">
+      <div class="toggle-edit" v-if="checkLoggedIn">
         <span>Toggle Editing Post</span>
         <input type="checkbox" v-model="editPost" />
       </div>
 
-      <BlogCard
-        :post="post"
-        v-for="(post, index) in sampleBlogCards"
-        :key="index"
-      />
+      <BlogCard :post="post" v-for="(post, index) in blogPosts" :key="index" />
     </div>
   </div>
 </template>
 
 <script>
-import BlogCard from '../components/BlogCards.vue';
-import { computed, onBeforeUnmount } from '@vue/runtime-core';
+import BlogCard from "../components/BlogCards.vue";
+import { computed, onBeforeUnmount } from "@vue/runtime-core";
 import { useStore } from "vuex";
 
 export default {
   name: "Blogs",
 
-  components: {BlogCard},
+  components: { BlogCard },
 
   setup() {
-
     const store = useStore();
-    const sampleBlogCards = computed(() => {
-      return store.state.sampleBlogCards;
+    const blogPosts = computed(() => {
+      return store.state.blogPosts;
     });
 
     const editPost = computed({
-      get(){
+      get() {
         return store.state.editPost;
       },
 
-      set(payload){
-        store.commit('toggleEditPost', payload);
-      }
+      set(payload) {
+        store.commit("toggleEditPost", payload);
+      },
     });
 
     onBeforeUnmount(() => {
-      store.commit('toggleEditPost', false);
+      store.commit("toggleEditPost", false);
     });
 
-    return { sampleBlogCards, editPost };
+    const checkLoggedIn = computed({
+      get() {
+        return store.state.user;
+      },
+    });
+
+    return { blogPosts, editPost, checkLoggedIn };
   },
 };
 </script>
@@ -72,7 +73,8 @@ export default {
       width: 80px;
       height: 30px;
       border-radius: 20px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
     input[type="checkbox"]:before {
       content: "";
@@ -85,7 +87,8 @@ export default {
       background: #303030;
       transform: scale(1.1);
       transition: 750ms ease all;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
     input:checked[type="checkbox"]:before {
       background: #fff;

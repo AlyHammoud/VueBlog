@@ -1,33 +1,42 @@
 <template>
   <div class="blog-card">
     <div class="icons" v-show="editPost">
-      <div class="icon">
+      <div @click="editBlog" class="icon">
         <Edit class="edit" />
       </div>
-      <div class="icon">
+      <div @click="deletePost" class="icon">
         <Delete class="delete" />
       </div>
     </div>
-    <img
-      :src="`src/assets/blogCards/${props.post.blogCoverPhoto}.jpg`"
-      alt=""
-    />
+    <img :src="props.post.blogCoverPhoto" alt="" />
 
     <div class="info">
       <h4>{{ props.post.blogTitle }}</h4>
-      <h6>Posted on: {{ props.post.blogDate }}</h6>
-      <router-link class="link" to="#">View The Post <Arrow class="arrow" /></router-link>
+      <h6>
+        Posted on:
+        {{
+          new Date(props.post.blogDate).toLocaleString("en-us", {
+            dateStyle: "long",
+          })
+        }}
+      </h6>
+      <router-link
+        class="link"
+        :to="{ name: 'ViewBlog', params: { blogid: props.post.blogID } }"
+        >View The Post <Arrow class="arrow"
+      /></router-link>
     </div>
   </div>
 </template>
 
 <script>
-import { computed } from '@vue/runtime-core';
+import { computed, onUnmounted } from "@vue/runtime-core";
 import Arrow from "../assets/Icons/arrow-right-light.svg";
 import Edit from "../assets/Icons/edit-regular.svg";
 import Delete from "../assets/Icons/trash-regular.svg";
-import { useStore } from 'vuex';
-
+import { useStore } from "vuex";
+import router from "../router";
+import { useRouter } from "vue-router";
 
 export default {
   name: "blogCard",
@@ -41,19 +50,32 @@ export default {
   },
 
   setup(props) {
-
     const store = useStore();
-    const editPost = computed(() =>{
+    const router = useRouter();
+
+    const editPost = computed(() => {
       return store.state.editPost;
     });
 
-    return { props, editPost };
+    const deletePost = () => {
+      store.dispatch("deletePost", props.post.blogID);
+    };
+
+    const editBlog = async () => {
+      const currentBlog = await store.state.blogPosts.filter((post) => {
+        return post.blogID === props.post.blogID;
+      });
+      store.commit("setBlogState", currentBlog[0]);
+      router.push({ name: "EditBlog", params: { blogid: props.post.blogID } });
+    };
+
+    return { props, editPost, deletePost, editBlog };
   },
 };
 </script>
 
 <style lang="scss" scoped>
-.blog-card{
+.blog-card {
   position: relative;
   cursor: pointer;
   display: flex;
@@ -63,19 +85,20 @@ export default {
   min-height: 420px;
   transition: 0.5s ease all;
 
-  &:hover{
+  &:hover {
     transform: rotateZ(-1deg) scale((1.01));
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
   }
 
-  .icons{
+  .icons {
     display: flex;
     position: absolute;
     top: 10px;
     right: 10px;
     z-index: 99;
 
-    .icon{
+    .icon {
       display: flex;
       justify-content: center;
       align-items: center;
@@ -85,24 +108,24 @@ export default {
       background-color: #fff;
       transition: 0.5s ease all;
 
-      &:hover{
+      &:hover {
         background-color: #303030;
         color: #fff;
 
         .edit,
-        .delete{
-          path{
+        .delete {
+          path {
             fill: #fff;
           }
         }
       }
 
-      &:nth-child(1){
+      &:nth-child(1) {
         margin-right: 8px;
       }
 
       .edit,
-      .delete{
+      .delete {
         pointer-events: none;
         height: 15px;
         width: auto;
@@ -110,16 +133,17 @@ export default {
     }
   }
 
-  img{
+  img {
     display: block;
     border-radius: 8px 8px 0 0;
     z-index: 1;
     width: 100%;
-    min-height: 200px;
+    height: 250px;
+    min-height: 250px;
     object-fit: cover;
   }
 
-  .info{
+  .info {
     display: flex;
     flex-direction: column;
     height: 100%;
@@ -127,19 +151,19 @@ export default {
     padding: 32px 16px;
     color: black;
 
-    h4{
+    h4 {
       padding-bottom: 8px;
       font-size: 20px;
       font-weight: 300;
     }
 
-    h6{
+    h6 {
       font-weight: 400;
       font-size: 12px;
       padding-bottom: 16px;
     }
 
-    .link{
+    .link {
       display: inline-flex;
       align-items: center;
       margin-top: auto;
@@ -149,12 +173,12 @@ export default {
       padding-bottom: 4px;
       transition: 0.5s ease-in all;
 
-      &:hover{
+      &:hover {
         color: rgba(48, 48, 48, 0.8);
       }
     }
 
-    .arrow{
+    .arrow {
       width: 10px;
     }
   }

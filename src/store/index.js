@@ -1,35 +1,26 @@
 import { createStore } from "vuex";
 import { auth, db } from "../firebase/firebaseInit";
-import { getDoc, collection, doc, updateDoc } from "firebase/firestore";
+import {
+  getDoc,
+  collection,
+  doc,
+  updateDoc,
+  query,
+  orderBy,
+  limit,
+  getDocs,
+  deleteDoc,
+} from "firebase/firestore";
 
 const store = createStore({
   state: {
-    sampleBlogCards: [
-      {
-        blogTitle: "Blog Card #1",
-        blogCoverPhoto: "stock-1",
-        blogDate: "May 1, 2022",
-      },
-      {
-        blogTitle: "Blog Card #2",
-        blogCoverPhoto: "stock-2",
-        blogDate: "May 1, 2022",
-      },
-      {
-        blogTitle: "Blog Card #3",
-        blogCoverPhoto: "stock-3",
-        blogDate: "May 1, 2022",
-      },
-      {
-        blogTitle: "Blog Card #4",
-        blogCoverPhoto: "stock-4",
-        blogDate: "May 1, 2022",
-      },
-    ],
+    
+    blogPosts: [],
+    postLoaded: null,
 
     blogHtml: "Write your blog title here...",
     blogTitle: "",
-    blogPhotoName: "",
+    blogCoverPhotoName: "",
     blogPhotoFileURL: null,
     blogPhotoPreview: null,
 
@@ -43,6 +34,16 @@ const store = createStore({
     profileInitials: null,
   },
 
+  getters:{
+    blogPostsFeed(state){
+      return state.blogPosts.slice(0, 2);
+    },
+
+    blogPostsCard(state){
+      return state.blogPosts.slice(2, 6);
+    }
+  },
+
   /*Mutations*/
   mutations: {
     newBlogPost(state, payload) {
@@ -54,18 +55,30 @@ const store = createStore({
     },
 
     fileNameChange(state, payload) {
-      state.blogPhotoName = payload;
+      state.blogCoverPhotoName = payload;
     },
     createFileURL(state, payload) {
       state.blogPhotoFileURL = payload;
     },
 
-    openPhotoPreview(state){
+    openPhotoPreview(state) {
       state.blogPhotoPreview = !state.blogPhotoPreview;
     },
 
     toggleEditPost(state, payload) {
       state.editPost = payload;
+    },
+
+    setBlogState(state, payload){
+      state.blogTitle = payload.blogTitle;
+      state.blogPhotoFileURL = payload.blogCoverPhoto;
+      state.blogCoverPhotoName = payload.blogCoverPhotoName;
+      
+      state.blogHtml = payload.blogHtml;
+    },
+
+    filterBlogPost(state, payload){
+      state.blogPosts = state.blogPosts.filter(post => post.blogID !== payload)
     },
 
     updateUser(state, payload) {
@@ -124,6 +137,43 @@ const store = createStore({
 
       commit("setProfileInitials");
     },
+
+    async updatePost({commit, dispatch}, payload){
+      commit("filterBlogPost", payload);
+      await dispatch("getPost");
+    },
+
+    async getPost({ state }) {
+      const docRef = collection(db, "blogPosts");
+      //const docSnap = await getDoc(docRef);
+
+      const docSnap =  query(docRef, orderBy("date", "desc"));
+
+      const querySnapshot = await getDocs(docSnap);
+
+      querySnapshot.forEach((doc) => {
+        if (!state.blogPosts.some((post) => post.blogID === doc.id)) {
+          const data = {
+            blogID: doc.data().blogId,
+            blogHtml: doc.data().blogHtml,
+            blogCoverPhoto: doc.data().blogCoverPhoto,
+            blogTitle: doc.data().blogTitle,
+            blogDate: doc.data().date,
+            blogCoverPhotoName: doc.data().blogCoverPhotoName,
+          };
+
+          state.blogPosts.push(data);
+        }
+      });
+      state.postLoaded = true;
+    },
+
+    async deletePost({commit}, payload){
+
+      await deleteDoc(doc(db, "blogPosts", payload));
+
+      commit('filterBlogPost', payload)
+    }
   },
 });
 

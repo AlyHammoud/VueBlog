@@ -8,6 +8,9 @@ import ForgotPassword from "../views/ForgotPassword.vue";
 import Admin from "../views/Admin.vue";
 import Profile from "../views/Profile.vue";
 import CreatePost from "../views/CreatePost.vue";
+import BlogPreview from "../views/BlogPreview.vue";
+import ViewBlog from "../views/ViewBlog.vue";
+import EditBlog from "../views/EditPost.vue";
 import store from "../store/index";
 
 const routes = [
@@ -17,7 +20,7 @@ const routes = [
     component: Home,
     meta: {
       title: "Home",
-      middleware: ['auth']
+      middleware: [],
     },
   },
   {
@@ -26,7 +29,7 @@ const routes = [
     component: Blogs,
     meta: {
       title: "Blogs",
-      middleware: ['auth']
+      middleware: [],
     },
   },
   {
@@ -35,7 +38,7 @@ const routes = [
     component: Login,
     meta: {
       title: "Login",
-      middleware: ['guest']
+      middleware: ["guest"],
     },
   },
   {
@@ -44,7 +47,7 @@ const routes = [
     component: Register,
     meta: {
       title: "Register",
-      middleware: ['guest']
+      middleware: ["guest"],
     },
   },
   {
@@ -53,7 +56,7 @@ const routes = [
     component: ForgotPassword,
     meta: {
       title: "Forgot Password",
-      middleware: ['guest']
+      middleware: ["guest"],
     },
   },
   {
@@ -62,7 +65,7 @@ const routes = [
     component: Profile,
     meta: {
       title: "Profile",
-      middleware: ['auth']
+      middleware: ["auth"],
     },
   },
   {
@@ -71,7 +74,7 @@ const routes = [
     component: Admin,
     meta: {
       title: "Admin",
-      middleware: ['auth']
+      middleware: ["auth"],
     },
   },
   {
@@ -80,7 +83,34 @@ const routes = [
     component: CreatePost,
     meta: {
       title: "Create Post",
-      middleware: ['auth']
+      middleware: ["auth"],
+    },
+  },
+  {
+    path: "/blog-preview",
+    name: "BlogPreview",
+    component: BlogPreview,
+    meta: {
+      title: "Blog preview",
+      middleware: ["auth"],
+    },
+  },
+  {
+    path: "/view-blog/:blogid",
+    name: "ViewBlog",
+    component: ViewBlog,
+    meta: {
+      title: "View Blog",
+      middleware: [],
+    },
+  },
+  {
+    path: "/edit-blog/:blogid",
+    name: "EditBlog",
+    component: EditBlog,
+    meta: {
+      title: "Edit Blog",
+      middleware: ['auth'],
     },
   },
 ];
@@ -95,7 +125,9 @@ router.beforeEach((to, _, next) => {
 
   if (store.state.user !== null && to.meta.middleware.includes('guest')) {
     next("/");
-  } else {
+  }else if(store.state.user === null && to.meta.middleware.includes('auth')){
+    next("/");
+  }else {
     next();
   }
 });

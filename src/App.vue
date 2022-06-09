@@ -1,6 +1,6 @@
 <template>
   <div class="app-wrapper">
-    <div class="app">
+    <div class="app" v-if="this.$store.state.postLoaded">
       <Navigation v-if="!state.navigation" />
       <router-view></router-view>
       <Footer v-if="!state.navigation" />
@@ -36,6 +36,7 @@ export default {
     const store = useStore();
 
     const checkRoute = () => {
+
       if (
         route.name === "Login" ||
         route.name === "Register" ||
@@ -46,6 +47,10 @@ export default {
       }
       state.navigation = false;
     };
+
+    onBeforeMount(async () => {
+      await store.dispatch('getPost')
+    });
 
     onMounted(() => {
 
@@ -61,6 +66,7 @@ export default {
     });
 
     watchEffect(() => {
+      
       return checkRoute();
     });
 

@@ -38,9 +38,9 @@
         />
       </div>
       <div class="blog-actions">
-        <button @click.prevent="uploadBlog">Publish Blog</button>
+        <button @click.prevent="updateBlog">Save Changes</button>
         <router-link :to="{ name: 'BlogPreview' }" class="router-button"
-          >Post Preview</router-link
+          >Preview Changes</router-link
         >
       </div>
     </div>
@@ -49,7 +49,7 @@
 
 <script>
 import { db, storage, auth } from "../firebase/firebaseInit";
-import { collection, setDoc, doc } from "firebase/firestore";
+import { collection, setDoc, doc, updateDoc } from "firebase/firestore";
 import {
   uploadBytes,
   ref as storageRef,
@@ -60,7 +60,7 @@ import { reactive, ref } from "@vue/reactivity";
 import RichText from "../components/RichText.vue";
 import Loading from "../components/Loading.vue";
 import BlogCoverPreview from "../components/BlogCoverPreview.vue";
-import { computed } from "@vue/runtime-core";
+import { computed, onBeforeMount, onMounted } from "@vue/runtime-core";
 import { useStore } from "vuex";
 
 import { Quill, QuillEditor } from "@vueup/vue-quill";
@@ -68,7 +68,7 @@ import { useRoute, useRouter } from "vue-router";
 Quill.import("blots/block/embed");
 
 export default {
-  name: "CreatePost",
+  name: "EditBlog",
   components: { RichText, BlogCoverPreview, Loading },
 
   setup() {
@@ -76,6 +76,8 @@ export default {
     const richTextQ = ref(null);
 
     const state = reactive({
+      routeID: null,
+      currentBlog: null,
       loading: null,
       file: null,
       downloadURL: null,
@@ -155,7 +157,16 @@ export default {
     const store = useStore();
 
     const router = useRouter();
+    const route = useRoute();
 
+    // onBeforeMount(async () => {
+    //   state.routeID = route.params.blogid;
+    //   state.currentBlog = await store.state.blogPosts.filter((post) => {
+    //     return post.blogID === state.routeID;
+    //   });
+    //   store.commit("setBlogState", state.currentBlog[0]);
+    // });
+    
     const profileId = computed(() => {
       return store.state.profileId;
     });
@@ -172,6 +183,7 @@ export default {
         store.commit("updateBlogTitle", payload);
       },
     });
+
     const blogHtml = computed({
       get() {
         return store.state.blogHtml;
@@ -192,7 +204,9 @@ export default {
       store.commit("openPhotoPreview");
     };
 
-    const uploadBlog = () => {
+    const updateBlog = async () => {
+      const dataBase = doc(collection(db, "blogPosts"), route.params.blogid);
+      
       if (blogTitle.value.length !== 0 && blogHtml.value.length !== 0) {
         if (state.file) {
           //upload phoots
@@ -207,43 +221,36 @@ export default {
           uploadBytes(docRef, state.file)
             .then((snapshot) => {
               getDownloadURL(docRef).then((url) => {
-                const dataBase = doc(collection(db, "blogPosts")); //prepare the document with collection in ( db ) of name of the collection users, and a userid of the registerd user, or can be emtpy then setDoc generates a random id
-                const timestamp = Date.now();
 
-                setDoc(dataBase, {
-                  blogId: dataBase.id,
+                updateDoc(dataBase, {
                   blogHtml: blogHtml.value,
                   blogCoverPhoto: url,
                   blogCoverPhotoName: fileName,
                   blogTitle: blogTitle.value,
-                  profileId: profileId.value,
-                  date: timestamp,
+
                 }).then(async () => {
-                  await store.dispatch('getPost');
+                  await store.dispatch("updatePost", route.params.blogid);
                   state.loading = false;
+
                   
-                  await router.push({
-                      name: "ViewBlog",
-                      params: { blogid: dataBase.id },
-                    });
                 });
-                
               });
             })
             .catch((err) => {
               state.loading = false;
             }); //console.log(err));
 
-          return;
+
         }
+        state.loading = true;
+        updateDoc(dataBase,{
+          blogHtml: blogHtml.value,
+          blogTitle: blogTitle.value,
+        });
 
-        //handle error
-        state.error = true;
-        state.errorMsg = " Please make sure you uploaded blog cover photo!";
-        setTimeout(() => {
-          state.error = false;
-        }, 5000);
-
+        await store.dispatch('updatePost', route.params.blogid);
+        state.loading = false;
+        router.push({name: "ViewBlog", params: {logind: dataBase.id } })
         return;
       }
 
@@ -265,7 +272,7 @@ export default {
       fileChange,
       openPreview,
       richTextQ,
-      uploadBlog,
+      updateBlog,
     };
   },
 };

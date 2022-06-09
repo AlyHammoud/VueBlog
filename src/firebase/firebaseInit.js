@@ -1,7 +1,8 @@
 
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth } from "firebase/auth";
+import { getStorage, ref as refStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBRIjigt7THgzqtJ0GXHp7bsIPd9LNTMvs",
@@ -19,3 +20,7 @@ initializeApp(firebaseConfig);
 export const db = getFirestore();
 // generate & export auth object
 export const auth = getAuth();
+
+export const storage = getStorage(initializeApp(firebaseConfig));
+
+export const storageRef = refStorage(storage);
